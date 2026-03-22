@@ -1,74 +1,26 @@
 version: '3.8'
 
 services:
-  # Backend API
   backend:
     build:
       context: .
-      dockerfile: Dockerfile.backend
-    container_name: autopipeline-backend
+      dockerfile: apps/backend/Dockerfile
     ports:
       - "8000:8000"
     environment:
-      - PYTHONUNBUFFERED=1
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
-      - AZURE_RESOURCE_GROUP=rg-autopipeline
-      - SYNAPSE_SERVER=${SYNAPSE_SERVER}
-      - SYNAPSE_DATABASE=analytics
-      - STORAGE_ACCOUNT=${STORAGE_ACCOUNT}
-      - APPINSIGHTS_KEY=${APPINSIGHTS_KEY}
     volumes:
-      - ./backend:/app
-    networks:
-      - autopipeline-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - ./apps/backend:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
-  # Frontend
   frontend:
     build:
-      context: .
-      dockerfile: Dockerfile.frontend
-    container_name: autopipeline-frontend
+      context: ./apps/frontend
+      dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://backend:8000
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    networks:
-      - autopipeline-network
     depends_on:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
-  # PostgreSQL (optional - for production database)
-  # postgres:
-  #   image: postgres:15-alpine
-  #   container_name: autopipeline-db
-  #   environment:
-  #     POSTGRES_USER: autopipeline
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #     POSTGRES_DB: autopipeline
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   networks:
-  #     - autopipeline-network
-
-networks:
-  autopipeline-network:
-    driver: bridge
-
-# volumes:
-#   postgres_data:
+volumes:
+  backend:

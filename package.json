@@ -1,0 +1,20 @@
+{
+  "name": "autopipeline",
+  "version": "1.0.0",
+  "description": "Azure Autonomous Data Platform",
+  "private": true,
+  "workspaces": [
+    "apps/frontend",
+    "apps/backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev --workspace=apps/frontend\" \"npm run dev --workspace=apps/backend\"",
+    "build": "npm run build --workspace=apps/frontend && echo 'Frontend built'",
+    "preview": "npm run preview --workspace=apps/frontend",
+    "backend": "npm run dev --workspace=apps/backend",
+    "frontend": "npm run dev --workspace=apps/frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
