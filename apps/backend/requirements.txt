@@ -9,3 +9,9 @@ azure-storage-file-datalake==12.13.0
 azure-mgmt-costmanagement==4.0.0
 azure-monitor-opentelemetry==1.0.0
 httpx==0.25.0
+
+# v1.1: Database
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+pydantic-settings==2.1.0
+alembic==1.12.1

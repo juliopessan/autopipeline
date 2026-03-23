@@ -22,3 +22,9 @@ pydantic==2.4.0
 pytest==7.4.0
 black==23.10.0
 pylint==3.0.0
+
+# v1.1 Features
+streamlit-authenticator==0.2.3
+streamlit-cookies-manager==0.2.0
+bcrypt==4.1.0
+python-multipart==0.0.6

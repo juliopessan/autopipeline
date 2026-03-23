@@ -1,14 +1,36 @@
 version: '3.8'
 
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: autopipeline_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: autopipeline
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: .
       dockerfile: apps/backend/Dockerfile
+    container_name: autopipeline_backend
     ports:
       - "8000:8000"
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - DATABASE_URL=postgresql://postgres:password@postgres:5432/autopipeline
+    depends_on:
+      postgres:
+        condition: service_healthy
     volumes:
       - ./apps/backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
@@ -22,6 +44,7 @@ services:
     build:
       context: ./apps/streamlit_dashboard
       dockerfile: Dockerfile
+    container_name: autopipeline_dashboard
     ports:
       - "8501:8501"
     environment:
@@ -33,4 +56,4 @@ services:
       - ./apps/streamlit_dashboard:/app
 
 volumes:
-  backend:
+  postgres_data:
