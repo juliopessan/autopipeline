@@ -12,15 +12,25 @@ services:
     volumes:
       - ./apps/backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  frontend:
+  streamlit_dashboard:
     build:
-      context: ./apps/frontend
+      context: ./apps/streamlit_dashboard
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "8501:8501"
+    environment:
+      - BACKEND_URL=http://backend:8000
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    volumes:
+      - ./apps/streamlit_dashboard:/app
 
 volumes:
   backend:

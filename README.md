@@ -3,20 +3,21 @@
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen?style=flat-square)](https://github.com/juliopessan/autopipeline)
 [![License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue?style=flat-square)](https://www.python.org/)
-[![Node](https://img.shields.io/badge/node-18%2B-green?style=flat-square)](https://nodejs.org/)
+[![Streamlit](https://img.shields.io/badge/streamlit-1.28-red?style=flat-square)](https://streamlit.io/)
 [![Docker](https://img.shields.io/badge/docker-24%2B-blue?style=flat-square)](https://www.docker.com/)
 
-**Production-ready autonomous data pipeline optimization platform powered by Claude AI and Microsoft Azure**
+**Production-ready autonomous data pipeline optimization platform powered by Claude AI, FastAPI, and Streamlit**
 
 ---
 
 ## 🎯 What is This?
 
-A fullstack platform that uses Claude AI to **autonomously optimize data pipelines** while you keep complete control. 
+A fullstack platform that uses Claude AI to **autonomously optimize data pipelines** while you keep complete control.
 
 - **Autonomous**: Claude proposes improvements automatically
 - **Safe**: Budget enforcement & success-based logic (keep if better, discard if worse)
-- **Observable**: Real-time dashboard shows everything
+- **Observable**: Real-time Streamlit dashboard shows everything
+- **100% Python**: Dashboard in pure Python with Streamlit (perfect for data scientists!)
 - **Enterprise-Ready**: Docker, GitHub Actions, Azure integration
 
 ---
@@ -28,11 +29,12 @@ A fullstack platform that uses Claude AI to **autonomously optimize data pipelin
 - Time & cost budget enforcement (prevents runaway experiments)
 - Continuous improvement loop running 24/7
 
-📊 **Real-Time Dashboard**
-- 6 KPI cards (experiments, success rate, costs, budget)
-- Interactive charts and metrics
+📊 **Real-Time Streamlit Dashboard** ⭐ NEW!
+- 4 KPI cards (experiments, success rate, costs, budget)
+- Interactive charts with Plotly
 - Program and experiment tracking
-- Live updates every 5 seconds
+- Settings and configuration
+- **Zero JavaScript needed!** 🐍
 
 💼 **Full Management**
 - Create and manage optimization programs
@@ -51,35 +53,39 @@ A fullstack platform that uses Claude AI to **autonomously optimize data pipelin
 ### Prerequisites
 ```bash
 python3 --version    # Need 3.11+
-node --version       # Need 18+
-git clone https://github.com/juliopessan/autopipeline.git
-cd autopipeline
+docker --version     # Optional but recommended
 ```
 
-### Option 1: Local (Recommended)
+### Option 1: Local (Recommended for Data Scientists)
+
 ```bash
-# Terminal 1 - Backend
-python3 -m venv venv
-source venv/bin/activate
-pip install -r backend/backend_requirements.txt
+# Terminal 1 - Backend (FastAPI)
+cd apps/backend
+pip install -r requirements.txt
 export ANTHROPIC_API_KEY=sk-your-key-here
-python backend/backend_main.py
-# Opens: http://localhost:8000
+python main.py
+# API: http://localhost:8000
+# Docs: http://localhost:8000/docs
 ```
 
 ```bash
-# Terminal 2 - Frontend
-cd frontend
-npm install
-npm start
-# Opens: http://localhost:3000
+# Terminal 2 - Dashboard (Streamlit)
+cd apps/streamlit_dashboard
+pip install -r requirements.txt
+streamlit run app.py
+# Dashboard: http://localhost:8501
 ```
 
-### Option 2: Docker
+### Option 2: Docker Compose
+
 ```bash
 cp .env.example .env
 # Edit .env with ANTHROPIC_API_KEY
+
 docker-compose up
+
+# Backend:   http://localhost:8000
+# Dashboard: http://localhost:8501
 ```
 
 ➡️ **Full Setup Guide**: See [docs/RUN-NOW.md](docs/RUN-NOW.md)
@@ -89,9 +95,11 @@ docker-compose up
 ## 📊 Architecture
 
 ```
-React Dashboard        FastAPI Backend       Azure Services
-(http://3000)  ←→     (http://8000)    ←→   (Synapse, ADLS, Insights)
-                          ↓
+Streamlit Dashboard     FastAPI Backend        Azure Services
+(http://8501)   ←→     (http://8000)    ←→   (Synapse, ADLS, Insights)
+    🐍 Python              🐍 Python
+    
+                            ↓
                     Claude AI Agent
                     (Autonomous Loop)
 ```
@@ -106,20 +114,33 @@ React Dashboard        FastAPI Backend       Azure Services
 
 ```
 autopipeline/
-├── backend/              # FastAPI application (500+ lines)
-│   ├── backend_main.py
-│   └── backend_requirements.txt
-├── frontend/             # React application (300+ lines)
-│   ├── src/App.tsx
-│   └── package.json
-├── docker-compose.yml    # Local development
-├── docs/                 # 24 files, 50+ pages
-│   ├── RUN-NOW.md (5-minute quick start)
-│   ├── SETUP-DEPLOYMENT-GUIDE.md (complete)
-│   ├── IMPLEMENTATION-ROADMAP.md (8-week plan)
-│   └── ...13 more guides
-├── README.md             # This file
-└── LICENSE              # MIT
+├── apps/
+│   ├── backend/                   (FastAPI - Python)
+│   │   ├── main.py
+│   │   ├── requirements.txt
+│   │   └── Dockerfile
+│   └── streamlit_dashboard/       (Streamlit - Python) ⭐ NEW!
+│       ├── app.py                 (Main dashboard)
+│       ├── pages/                 (Multi-page)
+│       │   ├── dashboard.py       (KPIs & charts)
+│       │   ├── experiments.py     (Tracking)
+│       │   ├── programs.py        (Management)
+│       │   └── settings.py        (Config)
+│       ├── lib/                   (Utilities)
+│       │   ├── api_client.py      (FastAPI client)
+│       │   ├── charts.py          (Plotly charts)
+│       │   └── utils.py           (Helpers)
+│       ├── requirements.txt
+│       └── Dockerfile
+├── docker-compose.yml             (Updated)
+├── scripts/
+│   ├── build.sh
+│   └── dev.sh
+├── docs/                          (50+ pages)
+│   ├── STREAMLIT-MIGRATION.md    (⭐ NEW)
+│   ├── RUN-NOW.md
+│   └── ...
+└── README.md
 ```
 
 **Complete file inventory**: See [docs/MANIFEST.md](docs/MANIFEST.md)
@@ -128,12 +149,13 @@ autopipeline/
 
 ## 🛠 Technology Stack
 
-| Layer | Tech |
-|-------|------|
-| **Frontend** | React 18 + TypeScript 4.9 + Recharts |
-| **Backend** | FastAPI 0.104 + Python 3.11 + Anthropic Claude |
-| **Cloud** | Azure (Synapse, ADLS, Insights, Cost API) |
-| **DevOps** | Docker 24+, Docker Compose, GitHub Actions |
+| Layer | Tech | Why? |
+|-------|------|------|
+| **Frontend** | Streamlit | 🐍 Python! No JavaScript |
+| **Backend** | FastAPI + Python | Modern, async, type-safe |
+| **AI** | Claude (Anthropic) | State-of-the-art autonomous agent |
+| **Cloud** | Azure (Synapse, ADLS, Insights) | Enterprise-grade infrastructure |
+| **DevOps** | Docker, Docker Compose | Reproducible deployments |
 
 ---
 
@@ -142,10 +164,10 @@ autopipeline/
 | Guide | Purpose | Time |
 |-------|---------|------|
 | [RUN-NOW.md](docs/RUN-NOW.md) | Get running locally | 5 min |
+| [STREAMLIT-MIGRATION.md](docs/STREAMLIT-MIGRATION.md) | ⭐ NEW - Streamlit guide | 10 min |
 | [SETUP-DEPLOYMENT-GUIDE.md](docs/SETUP-DEPLOYMENT-GUIDE.md) | Deploy to Azure | 30 min |
-| [azure_platform_architecture.md](docs/azure_platform_architecture.md) | Technical design + 6 ADRs | 45 min |
+| [azure_platform_architecture.md](docs/azure_platform_architecture.md) | Technical design + ADRs | 45 min |
 | [IMPLEMENTATION-ROADMAP.md](docs/IMPLEMENTATION-ROADMAP.md) | 8-week sprint plan | 20 min |
-| [MACOS-SETUP-GUIDE.md](docs/MACOS-SETUP-GUIDE.md) | macOS specific help | 15 min |
 
 **Full Documentation Index**: See [docs/00-PROJECT-INDEX.md](docs/00-PROJECT-INDEX.md)
 
@@ -153,10 +175,10 @@ autopipeline/
 
 ## 💡 How It Works
 
-1. **Create Program** → Define optimization goal + constraints
+1. **Create Program** → Define optimization goal + constraints (Streamlit UI)
 2. **Claude Proposes** → AI suggests improvements (every 5-10 min)
 3. **Experiment Runs** → System executes with time/cost budget
-4. **Metrics Tracked** → Results saved in Git + TSV
+4. **Metrics Tracked** → Results saved in Git + TSV (observable!)
 5. **Keep or Discard** → If metrics improved, keep; otherwise revert
 6. **Loop Continues** → Repeat until stopped
 
@@ -166,18 +188,19 @@ All decisions tracked in Git. All improvements auditable.
 
 ## 🎯 Status & Roadmap
 
-**v1.0 - Current (Production Ready)**
+**v1.0 - Current (Production Ready) ✅**
 - ✅ Autonomous agent loop
-- ✅ Real-time dashboard
+- ✅ Real-time Streamlit dashboard
 - ✅ Azure integration
 - ✅ Docker setup
 - ✅ Complete documentation
+- ✅ 100% Python stack
 
 **v1.1 - Planned (Q2 2025)**
+- Streamlit authentication
 - PostgreSQL integration
-- Advanced analytics
+- Advanced ML analytics
 - Webhook support
-- Unit/integration tests
 
 ➡️ **Full Roadmap**: See [docs/IMPLEMENTATION-ROADMAP.md](docs/IMPLEMENTATION-ROADMAP.md)
 
@@ -185,11 +208,12 @@ All decisions tracked in Git. All improvements auditable.
 
 ## 📊 Project Stats
 
-- **Code**: 2,000+ lines (backend + frontend)
+- **Code**: 3,000+ lines (backend + dashboard)
 - **Documentation**: 50+ pages across 24 files
+- **Stack**: 100% Python 🐍
+- **Dashboard**: Streamlit (super fast!)
 - **Tests**: Ready for your test suite
 - **License**: MIT (open source)
-- **Status**: Production ready
 
 ---
 
@@ -204,9 +228,9 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for:
 
 ## 📞 Support & Troubleshooting
 
-**Can't get it running?**
-- macOS issues? → [docs/MACOS-SETUP-GUIDE.md](docs/MACOS-SETUP-GUIDE.md)
-- Deployment questions? → [docs/SETUP-DEPLOYMENT-GUIDE.md](docs/SETUP-DEPLOYMENT-GUIDE.md)
+**Getting started?**
+- Python beginners? → [docs/RUN-NOW.md](docs/RUN-NOW.md)
+- Streamlit questions? → [docs/STREAMLIT-MIGRATION.md](docs/STREAMLIT-MIGRATION.md)
 - General help? → [docs/00-PROJECT-INDEX.md](docs/00-PROJECT-INDEX.md)
 
 **GitHub Issues**: Report bugs or request features
@@ -231,17 +255,19 @@ Inspired by [Karpathy's autoresearch](https://github.com/karpathy/autoresearch)
 
 ## 🚀 Next Steps
 
-1. **Run it**: `cd autopipeline && npm install && npm start`
-2. **Read docs**: Start with [docs/RUN-NOW.md](docs/RUN-NOW.md)
-3. **Deploy it**: Follow [docs/SETUP-DEPLOYMENT-GUIDE.md](docs/SETUP-DEPLOYMENT-GUIDE.md)
-4. **Extend it**: Build on the foundation with your improvements
+1. **Run it**: `docker-compose up`
+2. **Access Dashboard**: http://localhost:8501
+3. **Read Streamlit Guide**: [docs/STREAMLIT-MIGRATION.md](docs/STREAMLIT-MIGRATION.md)
+4. **Deploy to Cloud**: Follow [docs/SETUP-DEPLOYMENT-GUIDE.md](docs/SETUP-DEPLOYMENT-GUIDE.md)
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for the open source community**
+**Built with ❤️ for data scientists, by data scientists**
 
 [⭐ Star this repo](https://github.com/juliopessan/autopipeline) if you find it useful!
+
+🐍 **100% Python Stack** | 📊 **Streamlit Dashboard** | 🤖 **Claude AI** | ☁️ **Azure Native**
 
 </div>
