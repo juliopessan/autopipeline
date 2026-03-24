@@ -78,13 +78,13 @@ else:
             "📈 Experiments",
             "💼 Programs",
             "👥 Users" if st.session_state.get("username") == "admin" else None,
-            "🧠 ML Analytics", "🔔 Webhooks", "⚙️ Settings"
+            "🧠 ML Analytics", "💰 Cost Intelligence", "⚙️ Resources", "🔔 Webhooks", "⚙️ Settings"
         ], options=[p for p in [
             "📊 Dashboard",
             "📈 Experiments",
             "💼 Programs",
             "👥 Users" if st.session_state.get("username") == "admin" else None,
-            "🧠 ML Analytics", "🔔 Webhooks", "⚙️ Settings"
+            "🧠 ML Analytics", "💰 Cost Intelligence", "⚙️ Resources", "🔔 Webhooks", "⚙️ Settings"
         ] if p])
         
         st.divider()
@@ -119,7 +119,7 @@ else:
     elif page == "👥 Users" and st.session_state.get("username") == "admin":
         from streamlit_dashboard.lib.user_manager import show_user_management
         show_user_management()
-    elif page == "🧠 ML Analytics", "🔔 Webhooks", "⚙️ Settings":
+    elif page == "🧠 ML Analytics", "💰 Cost Intelligence", "⚙️ Resources", "🔔 Webhooks", "⚙️ Settings":
         from streamlit_dashboard.pages import settings
         settings.show()
     
